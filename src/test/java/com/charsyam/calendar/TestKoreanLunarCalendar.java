@@ -131,4 +131,53 @@ public class TestKoreanLunarCalendar {
 		assertEquals(10 - 1, ocal.get(Calendar.MONTH));
 		assertEquals(23, ocal.get(Calendar.DAY_OF_MONTH));
 	}
+
+	private void verirfyWithSolarMillis(long millis, int year, int month, int day) {
+		Calendar ocal = Calendar.getInstance();
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		ocal.setTimeZone(tz);
+		ocal.setTimeInMillis(millis);
+
+		assertEquals(year, ocal.get(Calendar.YEAR));
+		assertEquals(month - 1, ocal.get(Calendar.MONTH));
+		assertEquals(day, ocal.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void testSolarDateFromLunarDate1() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		long solar = 0;
+		try {
+			solar = cal.fromLunarDate(1900, 1, 1);
+		} catch (Exception e) {
+
+		}
+		verirfyWithSolarMillis(solar, 1900, 1, 31);
+	}
+
+	@Test
+	public void testSolarDateFromLunarDate2() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		long solar = 0;
+		try {
+			solar = cal.fromLunarDate(1987, 6, 21, true);
+		} catch (Exception e) {
+
+		}
+
+		verirfyWithSolarMillis(solar, 1987, 8, 15);
+	}
+
+	@Test
+	public void testSolarDateFromLunarDate3() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		long solar = 0;
+		try {
+			solar = cal.fromLunarDate(1987, 6, 21, false);
+		} catch (Exception e) {
+
+		}
+
+		verirfyWithSolarMillis(solar, 1987, 7, 16);
+	}
 }

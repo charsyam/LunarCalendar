@@ -1,5 +1,6 @@
 package com.charsyam.calendar;
 
+import com.charsyam.calendar.exceptions.InvalidLunarDateRangeException;
 import com.charsyam.calendar.exceptions.InvalidLunarMonthTypeException;
 
 import java.util.Calendar;
@@ -40,6 +41,67 @@ public abstract class LunarCalendar {
 	public LunarDate fromSolarDate(int year, int month, int days) {
 		long solarInMillis = getTimeInMillis(year, month, days);
 		return solarToLunar(solarInMillis);
+	}
+
+	public long fromLunarDate(LunarDate date) {
+		return date.getSolarMillis();
+	}
+
+	public long fromLunarDate(int lyear, int lmonth, int ldays, boolean isLeapMonth)
+		throws InvalidLunarDateRangeException {
+
+		if (lyear < 1900 || lyear > 2060) {
+			throw new InvalidLunarDateRangeException("Lunar year supports in 1900 - 2060");
+		}
+
+		long days = _getLunarDays(lyear, lmonth, ldays, isLeapMonth);
+		long millis = days * 8640000;
+		return millis + getLunarEpochDays();
+	}
+
+	public long fromLunarDate(int lyear, int lmonth, int ldays)
+		throws InvalidLunarDateRangeException {
+		return fromLunarDate(lyear, lmonth, ldays, false);
+	}
+
+
+	private long _getLunarDays(int lyear, int lmonth, int ldays, boolean isLeapMonth) {
+		int targetMonth = lmonth - 1;
+		int targetDays = ldays - 1;
+		int targetYear = lyear - 1900;
+
+		int yearInfos[][] = getLunarYearInfo();
+		long ret = 0;
+
+		int year;
+		for (year = 0; year < targetYear; year++) {
+			int yearDays = yearInfos[year][1];
+			ret += yearDays;
+		}
+
+		int [] month = getMonthInfo(yearInfos[year][0]);
+		int m = 0;
+		try {
+			for (m = 0; m < targetMonth; m++) {
+				LunarDays lunarDays = _getLunarDays(m);
+				ret += lunarDays.mDays;
+			}
+		} catch (Exception e) {
+
+		}
+
+		try {
+			LunarDays lunarDays = _getLunarDays(m);
+			if (lunarDays.lDays > 0 && isLeapMonth) {
+				ret += lunarDays.nDays;
+			}
+
+			ret += targetDays;
+		} catch (Exception e) {
+
+		}
+
+		return ret;
 	}
 
 	abstract int[][] getLunarYearInfo();
