@@ -1,5 +1,6 @@
 package com.charsyam.calendar;
 
+import com.charsyam.calendar.exceptions.InvalidLunarDateException;
 import com.charsyam.calendar.exceptions.InvalidLunarDateRangeException;
 import com.charsyam.calendar.exceptions.InvalidLunarMonthTypeException;
 
@@ -48,24 +49,25 @@ public abstract class LunarCalendar {
 	}
 
 	public long fromLunarDate(int lyear, int lmonth, int ldays, boolean isLeapMonth)
-		throws InvalidLunarDateRangeException {
+		throws InvalidLunarDateRangeException, InvalidLunarDateException {
 
 		if (lyear < 1900 || lyear > 2060) {
 			throw new InvalidLunarDateRangeException("Lunar year supports in 1900 - 2060");
 		}
 
 		long days = _getLunarDays(lyear, lmonth, ldays, isLeapMonth);
-		long millis = days * 8640000;
+		long millis = days * 86400000;
 		return millis + getLunarEpochDays();
 	}
 
 	public long fromLunarDate(int lyear, int lmonth, int ldays)
-		throws InvalidLunarDateRangeException {
+		throws InvalidLunarDateRangeException, InvalidLunarDateException {
 		return fromLunarDate(lyear, lmonth, ldays, false);
 	}
 
 
-	private long _getLunarDays(int lyear, int lmonth, int ldays, boolean isLeapMonth) {
+	private long _getLunarDays(int lyear, int lmonth, int ldays, boolean isLeapMonth)
+		throws InvalidLunarDateException {
 		int targetMonth = lmonth - 1;
 		int targetDays = ldays - 1;
 		int targetYear = lyear - 1900;
@@ -79,26 +81,34 @@ public abstract class LunarCalendar {
 			ret += yearDays;
 		}
 
-		int [] month = getMonthInfo(yearInfos[year][0]);
+		int [] monthInfo = getMonthInfo(yearInfos[year][0]);
 		int m = 0;
 		try {
 			for (m = 0; m < targetMonth; m++) {
-				LunarDays lunarDays = _getLunarDays(m);
+				LunarDays lunarDays = _getLunarDays(monthInfo[m]);
 				ret += lunarDays.mDays;
 			}
 		} catch (Exception e) {
 
 		}
 
+		boolean invalid = false;
 		try {
-			LunarDays lunarDays = _getLunarDays(m);
+			LunarDays lunarDays = _getLunarDays(monthInfo[m]);
 			if (lunarDays.lDays > 0 && isLeapMonth) {
 				ret += lunarDays.nDays;
+				if (lunarDays.lDays < ldays) {
+					invalid = true;
+				}
 			}
 
 			ret += targetDays;
 		} catch (Exception e) {
 
+		}
+
+		if (invalid) {
+			throw new InvalidLunarDateException(lyear, lmonth, ldays);
 		}
 
 		return ret;

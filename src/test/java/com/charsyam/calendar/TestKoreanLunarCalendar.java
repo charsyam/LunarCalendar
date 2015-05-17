@@ -1,5 +1,6 @@
 package com.charsyam.calendar;
 
+import com.charsyam.calendar.exceptions.InvalidLunarDateException;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -127,9 +128,7 @@ public class TestKoreanLunarCalendar {
 		ocal.setTimeZone(tz);
 		ocal.setTimeInMillis(solar);
 
-		assertEquals(2014, ocal.get(Calendar.YEAR));
-		assertEquals(10 - 1, ocal.get(Calendar.MONTH));
-		assertEquals(23, ocal.get(Calendar.DAY_OF_MONTH));
+		verirfyWithSolarMillis(solar, 2014, 10, 23);
 	}
 
 	private void verirfyWithSolarMillis(long millis, int year, int month, int day) {
@@ -138,9 +137,13 @@ public class TestKoreanLunarCalendar {
 		ocal.setTimeZone(tz);
 		ocal.setTimeInMillis(millis);
 
-		assertEquals(year, ocal.get(Calendar.YEAR));
-		assertEquals(month - 1, ocal.get(Calendar.MONTH));
-		assertEquals(day, ocal.get(Calendar.DAY_OF_MONTH));
+		int tyear = ocal.get(Calendar.YEAR);
+		int tmonth = ocal.get(Calendar.MONTH);
+		int tday = ocal.get(Calendar.DAY_OF_MONTH);
+
+		assertEquals(year, tyear);
+		assertEquals(month - 1, tmonth);
+		assertEquals(day, tday);
 	}
 
 	@Test
@@ -149,9 +152,10 @@ public class TestKoreanLunarCalendar {
 		long solar = 0;
 		try {
 			solar = cal.fromLunarDate(1900, 1, 1);
-		} catch (Exception e) {
+		} catch(Exception e) {
 
 		}
+
 		verirfyWithSolarMillis(solar, 1900, 1, 31);
 	}
 
@@ -179,5 +183,47 @@ public class TestKoreanLunarCalendar {
 		}
 
 		verirfyWithSolarMillis(solar, 1987, 7, 16);
+	}
+
+	@Test
+	public void testSolarDateFromLunarDate4() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		long solar = 0;
+		try {
+			solar = cal.fromLunarDate(1987, 6, 1, true);
+		} catch (Exception e) {
+
+		}
+
+		verirfyWithSolarMillis(solar, 1987, 7, 26);
+	}
+
+	@Test
+	public void testSolarDateFromLunarDate5() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		long solar = 0;
+		try {
+			solar = cal.fromLunarDate(1987, 6, 30, false);
+		} catch (Exception e) {
+
+		}
+
+		verirfyWithSolarMillis(solar, 1987, 7, 25);
+	}
+
+	@Test
+	public void testSolarDateFromLunarDate6() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		long solar = 0;
+		boolean ok = false;
+		try {
+			solar = cal.fromLunarDate(1987, 6, 30, true);
+		} catch (InvalidLunarDateException e) {
+			ok = true;
+		} catch(Exception e) {
+
+		}
+
+		assertTrue(ok);
 	}
 }
