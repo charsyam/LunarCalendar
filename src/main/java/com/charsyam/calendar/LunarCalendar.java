@@ -77,15 +77,14 @@ public abstract class LunarCalendar {
 
 		int year;
 		for (year = 0; year < targetYear; year++) {
-			int yearDays = yearInfos[year][1];
+			int yearDays = yearInfos[year][0];
 			ret += yearDays;
 		}
 
-		int [] monthInfo = getMonthInfo(yearInfos[year][0]);
 		int m = 0;
 		try {
 			for (m = 0; m < targetMonth; m++) {
-				LunarDays lunarDays = _getLunarDays(monthInfo[m]);
+				LunarDays lunarDays = _getLunarDays(yearInfos[year][m+1]);
 				ret += lunarDays.mDays;
 			}
 		} catch (Exception e) {
@@ -94,7 +93,7 @@ public abstract class LunarCalendar {
 
 		boolean invalid = false;
 		try {
-			LunarDays lunarDays = _getLunarDays(monthInfo[m]);
+			LunarDays lunarDays = _getLunarDays(yearInfos[year][m+1]);
 			if (lunarDays.lDays > 0 && isLeapMonth) {
 				ret += lunarDays.nDays;
 				if (lunarDays.lDays < ldays) {
@@ -118,30 +117,6 @@ public abstract class LunarCalendar {
 
 	boolean isInThisDays(long days, long targetDays) {
 		return ((days - targetDays) < 0);
-	}
-
-	int [] getMonthInfo(int v) {
-		int leapMonthDays = (((v & 0xF0000) >> 16) > 0) ? 30 : 29;
-		int leapMonth = v & 0x0000F;
-		int tmp = (v & 0x0FFF0) >> 4;
-
-		int month[] = new int[12];
-
-		for (int i = 11; i >= 0; i--) {
-			boolean longMonth = ((tmp & 0x0001) == 0x0001);
-			month[i] = longMonth ? 2 : 1;
-			tmp >>= 1;
-		}
-
-		if (leapMonth > 0) {
-			int tmonth = month[leapMonth - 1];
-			month[leapMonth - 1] = (leapMonthDays == 29) ? 3 : 5;
-			if (tmonth == 2) {
-				month[leapMonth - 1] += 1;
-			}
-		}
-
-		return month;
 	}
 
 	class LunarDays {
@@ -187,12 +162,11 @@ public abstract class LunarCalendar {
 
 		int year;
 		for (year = 0; (year < yearInfos.length); year++) {
-			int yearDays = yearInfos[year][1];
+			int yearDays = yearInfos[year][0];
 			if (isInThisDays(days, yearDays)) {
-				int [] month = getMonthInfo(yearInfos[year][0]);
-				for (int m : month) {
+				for (int m = 0; m < 12; m++) {
 					try {
-						LunarDays lunarDays = _getLunarDays(m);
+						LunarDays lunarDays = _getLunarDays(yearInfos[year][m+1]);
 						if (isInThisDays(days, lunarDays.mDays)) {
 							if (isInThisDays(days ,lunarDays.nDays) == false) {
 								days -= lunarDays.nDays;
