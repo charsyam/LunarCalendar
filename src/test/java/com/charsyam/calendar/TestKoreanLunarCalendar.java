@@ -226,4 +226,58 @@ public class TestKoreanLunarCalendar {
 
 		assertTrue(ok);
 	}
+
+	@Test
+	public void testLunarDateIsValid1() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertTrue(cal.isValid(1974, 2, 29));
+	}
+
+	@Test
+	public void testLunarDateIsValid2() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertTrue(cal.isValid(1974, 2, 30));
+	}
+
+	@Test
+	public void testLunarDateIsValid2_1() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertFalse(cal.isValid(1974, 2, 30, true));
+	}
+
+	@Test
+	public void testLunarDateIsValid3() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertTrue(cal.isValid(1974, 1, 29));
+	}
+
+	@Test
+	public void testLunarDateIsValid4() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertFalse(cal.isValid(1974, 2, 31));
+	}
+
+	@Test
+	public void testLunarDateIsValid5() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertTrue(cal.isValid(1987, 6, 30));
+	}
+
+	@Test
+	public void testLunarDateIsValid6() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertFalse(cal.isValid(1987, 6, 30, true));
+	}
+
+	@Test
+	public void testLunarDateIsValid7() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertTrue(cal.isValid(1987, 6, 29));
+	}
+
+	@Test
+	public void testLunarDateIsValid8() {
+		KoreanCalendar cal = KoreanCalendar.getInstance();
+		assertTrue(cal.isValid(1987, 6, 29, true));
+	}
 }

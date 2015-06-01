@@ -150,6 +150,47 @@ public abstract class LunarCalendar {
 		throw new InvalidLunarMonthTypeException(m);
 	}
 
+	boolean isValid(int year, int month, int day) {
+		return isValid(year, month, day, false);
+	}
+
+	boolean isValid(int year, int month, int day, boolean leap) {
+		if (day >= 31 || day < 1) {
+			return false;
+		}
+
+		if (month < 1 || month > 12) {
+			return false;
+		}
+
+		if (year < 1900 || year > 2050) {
+			return false;
+		}
+
+		int yearInfos[][] = getLunarYearInfo();
+		int dyear = year - 1900;
+
+		try {
+			LunarDays lunarDays = _getLunarDays(yearInfos[dyear][month]);
+			if (leap == true && lunarDays.lDays == 0) {
+				return false;
+			}
+
+			int target = lunarDays.nDays;
+			if (leap == true) {
+				target = lunarDays.lDays;
+			}
+
+			if (day > target) {
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private LunarDate solarToLunar(long millis) {
 		long lunarBaseMillis = millis - getLunarEpochDays();
 		long seconds = lunarBaseMillis / 1000;
